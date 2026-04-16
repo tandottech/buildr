@@ -62,9 +62,10 @@ export function RecentTasks({ tasks }: { tasks: TaskRow[] }) {
 
   return (
     <div
-      className="rounded-xl p-6"
+      className="rounded-2xl border p-6"
       style={{
-        backgroundColor: "var(--bg-primary)",
+        background:
+          "linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%), var(--bg-primary)",
         border: "1px solid var(--border-light)",
         boxShadow: "var(--shadow-sm)",
       }}
@@ -78,39 +79,40 @@ export function RecentTasks({ tasks }: { tasks: TaskRow[] }) {
         </span>
       </div>
 
-      {/* Table header */}
-      <div
-        className="mb-2 grid gap-4 rounded-lg px-4 py-2"
-        style={{
-          gridTemplateColumns: "2fr 100px 80px 100px 100px",
-          backgroundColor: "var(--bg-tertiary)",
-        }}
-      >
-        <span className="text-caption font-medium" style={{ color: "var(--text-tertiary)" }}>
-          Task
-        </span>
-        <span className="text-caption font-medium" style={{ color: "var(--text-tertiary)" }}>
-          Status
-        </span>
-        <span className="text-caption font-medium text-center" style={{ color: "var(--text-tertiary)" }}>
-          Sub-tasks
-        </span>
-        <span className="text-caption font-medium text-right" style={{ color: "var(--text-tertiary)" }}>
-          Cost
-        </span>
-        <span className="text-caption font-medium text-right" style={{ color: "var(--text-tertiary)" }}>
-          Duration
-        </span>
-      </div>
+      <div className="overflow-x-auto">
+        <div
+          className="mb-2 grid min-w-[760px] gap-4 rounded-lg px-4 py-2"
+          style={{
+            gridTemplateColumns: "2fr 110px 90px 110px 110px",
+            backgroundColor: "var(--bg-tertiary)",
+          }}
+        >
+          <span className="text-caption font-medium" style={{ color: "var(--text-tertiary)" }}>
+            Task
+          </span>
+          <span className="text-caption font-medium" style={{ color: "var(--text-tertiary)" }}>
+            Status
+          </span>
+          <span className="text-caption font-medium text-center" style={{ color: "var(--text-tertiary)" }}>
+            Sub-tasks
+          </span>
+          <span className="text-caption font-medium text-right" style={{ color: "var(--text-tertiary)" }}>
+            Cost
+          </span>
+          <span className="text-caption font-medium text-right" style={{ color: "var(--text-tertiary)" }}>
+            Duration
+          </span>
+        </div>
 
-      <div className="space-y-1">
+        <div className="min-w-[760px] space-y-1">
         {tasks.map((task) => (
           <div
             key={task.id}
-            className="grid items-center gap-4 rounded-lg px-4 py-3"
+            className="grid items-center gap-4 rounded-lg px-4 py-3 transition-all duration-200 hover:translate-x-0.5"
             style={{
-              gridTemplateColumns: "2fr 100px 80px 100px 100px",
+              gridTemplateColumns: "2fr 110px 90px 110px 110px",
               backgroundColor: "var(--bg-secondary)",
+              border: "1px solid transparent",
             }}
           >
             <p
@@ -140,6 +142,7 @@ export function RecentTasks({ tasks }: { tasks: TaskRow[] }) {
             </span>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

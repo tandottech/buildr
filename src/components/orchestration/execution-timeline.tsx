@@ -156,9 +156,21 @@ function TimelineEvent({
         </EventCard>
       );
 
-    case "payment":
+    case "payment": {
+      const txHash = event.data.tx_hash as string | null | undefined;
+      const basescanUrl = event.data.basescan_url as string | null | undefined;
+      const truncatedHash = txHash
+        ? `${txHash.slice(0, 10)}...${txHash.slice(-6)}`
+        : null;
+      const isConfirmed = Boolean(txHash && basescanUrl);
       return (
-        <EventCard icon="$" iconStyle={iconStyle} time={time} isLast={isLast}>
+        <EventCard
+          icon="$"
+          iconStyle={iconStyle}
+          time={time}
+          isLast={isLast}
+          celebrate={isConfirmed}
+        >
           <p className="text-sm" style={{ color: "var(--text-primary)" }}>
             Paid{" "}
             <span className="font-medium">{event.data.agent_name as string}</span>{" "}
@@ -173,8 +185,32 @@ function TimelineEvent({
           >
             tx: {event.data.locus_tx_id as string}
           </p>
+          {isConfirmed && truncatedHash && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span
+                className="font-mono text-xs"
+                style={{ color: "var(--accent-green)" }}
+              >
+                {truncatedHash}
+              </span>
+              <a
+                href={basescanUrl as string}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: "var(--accent-green-light)",
+                  color: "var(--accent-green)",
+                  border: "1px solid var(--accent-green)",
+                }}
+              >
+                View on Basescan &#x2197;
+              </a>
+            </div>
+          )}
         </EventCard>
       );
+    }
 
     case "execution": {
       const execStatus = event.data.status as string;
@@ -265,16 +301,20 @@ function EventCard({
   iconStyle,
   time,
   isLast,
+  celebrate,
   children,
 }: {
   icon: string;
   iconStyle: React.CSSProperties;
   time: string;
   isLast: boolean;
+  celebrate?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="animate-fade-in relative flex gap-3 pb-5">
+    <div
+      className={`animate-fade-in relative flex gap-3 pb-5 ${celebrate ? "payment-celebrate" : ""}`}
+    >
       {/* Vertical connecting line */}
       {!isLast && (
         <div
@@ -301,4 +341,35 @@ function EventCard({
       </div>
     </div>
   );
+}
+
+// Injected once at module load on the client so the celebrate animation
+// keyframes are always available to the timeline.
+if (typeof window !== "undefined") {
+  const STYLE_ID = "buildr-payment-celebrate-styles";
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      .payment-celebrate {
+        border-radius: 8px;
+        animation: paymentGlow 2s ease-out 1;
+      }
+      @keyframes paymentGlow {
+        0% {
+          box-shadow: 0 0 0 0 rgba(74, 124, 89, 0);
+          background-color: rgba(74, 124, 89, 0);
+        }
+        20% {
+          box-shadow: 0 0 16px 2px rgba(74, 124, 89, 0.45);
+          background-color: rgba(232, 240, 235, 0.6);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(74, 124, 89, 0);
+          background-color: rgba(74, 124, 89, 0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }

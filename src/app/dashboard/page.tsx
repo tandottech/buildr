@@ -12,12 +12,12 @@ export const dynamic = "force-dynamic";
 
 function SectionDivider({ label }: { label: string }) {
   return (
-    <div className="mb-6 mt-2">
+    <div className="mb-6 mt-3 flex items-center gap-3">
       <div
-        className="mb-4"
+        className="flex-1"
         style={{
           height: 1,
-          backgroundColor: "var(--border-light)",
+          background: "linear-gradient(90deg, var(--border-light), transparent)",
         }}
       />
       <p
@@ -27,16 +27,28 @@ function SectionDivider({ label }: { label: string }) {
           letterSpacing: "0.08em",
           textTransform: "uppercase",
           color: "var(--text-tertiary)",
+          whiteSpace: "nowrap",
         }}
       >
         {label}
       </p>
+      <div
+        className="flex-1"
+        style={{
+          height: 1,
+          background: "linear-gradient(90deg, transparent, var(--border-light))",
+        }}
+      />
     </div>
   );
 }
 
 export default function DashboardPage() {
   const db = getDb();
+  const now = new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   // --- Row 1: Stat cards ---
   const totalAgents = (
@@ -153,9 +165,46 @@ export default function DashboardPage() {
   });
 
   return (
-    <>
+    <div className="space-y-8 pb-4">
+      <section
+        className="relative overflow-hidden rounded-2xl border px-6 py-7 sm:px-8"
+        style={{
+          background:
+            "radial-gradient(140% 120% at 10% 0%, rgba(74, 111, 165, 0.14), transparent 55%), radial-gradient(130% 130% at 100% 100%, rgba(74, 124, 89, 0.12), transparent 50%), var(--bg-primary)",
+          borderColor: "var(--border-light)",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div className="pointer-events-none absolute -right-8 -top-8 h-36 w-36 rounded-full opacity-60 blur-2xl" style={{ backgroundColor: "var(--accent-blue-light)" }} />
+        <div className="pointer-events-none absolute -bottom-8 -left-8 h-28 w-28 rounded-full opacity-60 blur-2xl" style={{ backgroundColor: "var(--accent-green-light)" }} />
+        <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--text-tertiary)" }}>
+              Command Center
+            </p>
+            <h1 className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl" style={{ color: "var(--text-primary)" }}>
+              Overview
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm sm:text-base" style={{ color: "var(--text-secondary)" }}>
+              Monitor agent utilization, transaction flow, and orchestration performance in real time.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "var(--border-light)", color: "var(--text-secondary)", backgroundColor: "var(--bg-secondary)" }}>
+              {onlineAgents}/{totalAgents} online
+            </span>
+            <span className="rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "var(--border-light)", color: "var(--text-secondary)", backgroundColor: "var(--bg-secondary)" }}>
+              {tasksCompleted} tasks completed
+            </span>
+            <span className="rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "var(--border-light)", color: "var(--text-secondary)", backgroundColor: "var(--bg-secondary)" }}>
+              Updated {now}
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* Row 1: 6 Stat Cards */}
-      <div className="mb-10">
+      <div className="animate-fade-in">
         <EconomyStats
           stats={{
             totalAgents,
@@ -169,7 +218,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Live Activity Ticker (full width) */}
-      <div className="mb-10">
+      <div className="animate-fade-in">
         <LiveActivityTicker />
       </div>
 
@@ -177,7 +226,7 @@ export default function DashboardPage() {
       <SectionDivider label="Analytics" />
 
       {/* Category Breakdown (2/3) + Agent Status (1/3) */}
-      <div className="mb-10 grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <CategoryBreakdown categories={categories} />
         </div>
@@ -190,7 +239,7 @@ export default function DashboardPage() {
       <SectionDivider label="Activity" />
 
       {/* Top Earners (1/2) + Recent Transactions (1/2) */}
-      <div className="mb-10 grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <AgentLeaderboard agents={topAgents} />
         <TransactionFeed transactions={transactions} />
       </div>
@@ -200,6 +249,6 @@ export default function DashboardPage() {
 
       {/* Recent Tasks (full width) */}
       <RecentTasks tasks={taskRows} />
-    </>
+    </div>
   );
 }

@@ -2,7 +2,7 @@ import { getDb } from "@/lib/db";
 import { SubTask, OrchestrationEvent } from "@/lib/schema";
 import { findBestAgent, updateAgentStatus, incrementAgentStats } from "./registry";
 import { negotiate } from "./negotiator";
-import { transfer } from "@/lib/locus";
+import { transfer, getTransaction, getBasescanTxUrl } from "@/lib/locus";
 import { ORCHESTRATOR_AGENT_ID } from "@/lib/constants";
 
 const URL_REGEX = /https?:\/\/[^\s,)}\]]+/gi;
@@ -130,16 +130,29 @@ export async function orchestrateTask(
         `Payment for ${subTask.category} task #${taskId.slice(0, 8)}`
       );
 
+      // Poll Locus for the on-chain tx_hash (confirmation typically takes 10-30s)
+      let txHash: string | null = null;
+      if (txResult.success) {
+        for (let i = 0; i < 5; i++) {
+          await new Promise((r) => setTimeout(r, 2000));
+          const txDetail = await getTransaction(apiKey, txResult.tx_id);
+          if (txDetail?.tx_hash) {
+            txHash = txDetail.tx_hash;
+            break;
+          }
+        }
+      }
+
       // Record transaction
       const txId = crypto.randomUUID();
       const txStatus = txResult.success ? "paid" : "failed";
       db.prepare(`
-        INSERT INTO transactions (id, task_id, buyer_agent_id, seller_agent_id, amount, negotiated_from, negotiated_to, status, locus_tx_id, task_description)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO transactions (id, task_id, buyer_agent_id, seller_agent_id, amount, negotiated_from, negotiated_to, status, locus_tx_id, tx_hash, task_description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         txId, taskId, ORCHESTRATOR_AGENT_ID, agent.id,
         negotiation.final_price, negotiation.asking_price, negotiation.final_price,
-        txStatus, txResult.tx_id, subTask.description
+        txStatus, txResult.tx_id, txHash, subTask.description
       );
 
       onEvent({
@@ -150,6 +163,8 @@ export async function orchestrateTask(
           amount: negotiation.final_price,
           tx_id: txResult.tx_id,
           locus_tx_id: txResult.tx_id,
+          tx_hash: txHash,
+          basescan_url: txHash ? getBasescanTxUrl(txHash) : null,
           locus_status: txResult.status,
           success: txResult.success,
         },

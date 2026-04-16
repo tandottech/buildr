@@ -23,6 +23,7 @@ interface TaskTransaction {
   amount: number;
   status: string;
   locus_tx_id: string;
+  tx_hash: string | null;
   seller_name: string;
   task_description: string;
   created_at: string;
@@ -64,6 +65,12 @@ function truncateId(id: string): string {
   if (!id) return "---";
   if (id.length <= 16) return id;
   return id.slice(0, 8) + "..." + id.slice(-6);
+}
+
+function truncateHash(hash: string): string {
+  if (!hash) return "";
+  if (hash.length <= 14) return hash;
+  return hash.slice(0, 8) + "..." + hash.slice(-4);
 }
 
 function LoadingSkeleton() {
@@ -464,6 +471,7 @@ export default function PlaygroundPage({
                       alignItems: "center",
                       gap: 8,
                       fontSize: 12,
+                      flexWrap: "wrap",
                     }}
                   >
                     <Badge
@@ -486,6 +494,63 @@ export default function PlaygroundPage({
                         }}
                       >
                         {truncateId(tx.locus_tx_id)}
+                      </span>
+                    )}
+                  </div>
+                  {/* On-chain tx_hash row */}
+                  <div
+                    style={{
+                      marginTop: 8,
+                      paddingTop: 8,
+                      borderTop: "1px dashed var(--border-light)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      flexWrap: "wrap",
+                      fontSize: 11,
+                    }}
+                  >
+                    {tx.tx_hash ? (
+                      <>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-mono, monospace)",
+                            color: "var(--accent-green)",
+                            fontWeight: 500,
+                          }}
+                          title={tx.tx_hash}
+                        >
+                          {truncateHash(tx.tx_hash)}
+                        </span>
+                        <a
+                          href={`https://basescan.org/tx/${tx.tx_hash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 3,
+                            padding: "2px 8px",
+                            borderRadius: 9999,
+                            backgroundColor: "var(--accent-green-light)",
+                            color: "var(--accent-green)",
+                            border: "1px solid var(--accent-green)",
+                            fontWeight: 500,
+                            textDecoration: "none",
+                            fontSize: 10,
+                          }}
+                        >
+                          View on Basescan &#x2197;
+                        </a>
+                      </>
+                    ) : (
+                      <span
+                        style={{
+                          color: "var(--text-muted)",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Confirming on-chain...
                       </span>
                     )}
                   </div>

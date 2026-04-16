@@ -162,13 +162,18 @@ export function LiveActivityTicker() {
 
   return (
     <div
-      className="mb-8 rounded-xl p-5"
+      className="relative overflow-hidden rounded-2xl border p-5"
       style={{
-        backgroundColor: "var(--bg-primary)",
+        background:
+          "linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%), var(--bg-primary)",
         border: "1px solid var(--border-light)",
         boxShadow: "var(--shadow-sm)",
       }}
     >
+      <div
+        className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl"
+        style={{ backgroundColor: "rgba(74, 124, 89, 0.16)" }}
+      />
       {/* Header */}
       <div className="mb-3 flex items-center gap-2">
         <span
@@ -209,7 +214,7 @@ export function LiveActivityTicker() {
               return (
                 <div
                   key={event.id}
-                  className="flex items-center gap-3 rounded-md px-3 py-1.5"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 hover:translate-x-0.5"
                   style={{
                     backgroundColor: isNew
                       ? "var(--bg-tertiary)"

@@ -153,55 +153,46 @@ function StatCard({
   config: StatCardConfig;
   children: React.ReactNode;
 }) {
-  const cardId = `stat-${config.label.replace(/\s+/g, "-").toLowerCase()}`;
-
   return (
-    <>
-      <style>{`
-        #${cardId}:hover {
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-          border-color: ${config.accentVar} !important;
-        }
-      `}</style>
+    <div
+      className="group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5"
+      style={{
+        background: `linear-gradient(135deg, rgba(${config.accentRgb}, 0.08) 0%, rgba(${config.accentRgb}, 0.02) 52%, var(--bg-primary) 100%)`,
+        borderColor: "var(--border-light)",
+        boxShadow: "var(--shadow-sm)",
+        cursor: "default",
+      }}
+    >
       <div
-        id={cardId}
-        className="relative overflow-hidden transition-all duration-200"
+        className="pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-80"
+        style={{ backgroundColor: `rgba(${config.accentRgb}, 0.3)` }}
+      />
+      <div
+        className="mb-3 flex items-center justify-center"
         style={{
-          background: `linear-gradient(135deg, rgba(${config.accentRgb}, 0.04) 0%, rgba(${config.accentRgb}, 0.01) 100%)`,
-          border: "1px solid var(--border-light)",
-          borderRadius: 16,
-          padding: 20,
-          cursor: "default",
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          backgroundColor: `rgba(${config.accentRgb}, 0.14)`,
         }}
       >
-        {/* Icon circle */}
-        <div
-          className="mb-3 flex items-center justify-center"
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            backgroundColor: `rgba(${config.accentRgb}, 0.1)`,
-          }}
-        >
-          {config.icon}
-        </div>
-
-        {/* Label */}
-        <p
-          className="mb-1"
-          style={{
-            fontSize: 12,
-            color: "var(--text-tertiary)",
-            letterSpacing: "0.01em",
-          }}
-        >
-          {config.label}
-        </p>
-
-        {/* Value */}
-        {children}
+        {config.icon}
       </div>
-    </>
+      <p
+        className="mb-1"
+        style={{
+          fontSize: 12,
+          color: "var(--text-tertiary)",
+          letterSpacing: "0.01em",
+        }}
+      >
+        {config.label}
+      </p>
+      <div className="transition-transform duration-300 group-hover:translate-x-0.5">{children}</div>
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ backgroundColor: config.accentVar }}
+      />
+    </div>
   );
 }
